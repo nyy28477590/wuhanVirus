@@ -1,0 +1,147 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+:root {
+  --dark-color: #465665;
+  --light-color: #b9a593;
+}
+html {
+  height: 100%;
+}
+header {
+  margin-bottom: 12px;
+  background: black;
+}
+.titleText {
+  text-decoration: none;
+  color: #e6e2d8;
+  font-size: 40px;
+  font-weight: bolder;
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+}
+.titleText :hover {
+  color: var(--light-color);
+}
+.titleLink {
+  text-decoration: none;
+  color: #e6e2d8;
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+}
+p {
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+}
+body {
+  background: var(--dark-color);
+  margin: 0;
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+}
+.Footer {
+  margin-top: 12px;
+  justify-content: center;
+  padding-top: 12px;
+  color: #e6e2d8;
+  width: 100%;
+  background: #222222;
+  position: relative;
+  height: 100px; 
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+}
+.button {
+  background-color: var(--light-color);
+  text-decoration-color: var(--dark-color);
+}
+h1 {
+  padding-top: 16px;
+  font-weight: bold;
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+  color: var(--light-color);
+}
+.note {
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+  font-size: 16px;
+  color: var(--light-color);
+  vertical-align: middle;
+}
+.card {
+  display: inline-block;
+  width: 30%;
+  margin: 1%;
+  padding: 7px;
+  border-radius: 8px;
+  text-align: center;
+  background: var(--light-color); 
+  position: relative;
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+}
+.worldCard {
+  margin: 1%;
+  width: 65%;
+  display: inline-block;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  background: var(--light-color); 
+  vertical-align: top;
+  margin-bottom: 12px;
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+}
+table {
+  margin-left: auto;
+  margin-right: auto;
+}
+.avatar img {
+  border-radius: 50%;
+}
+
+h2 {
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+  color: var(--dark-color);
+}
+h3 {
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+  color: var(--dark-color);
+}
+h4 {
+  margin-bottom: 0;
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+  color: var(--dark-color);
+}
+h5 {
+  margin-bottom: 0;
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+  color: var(--light-color);
+}
+h6 {
+  font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
+  font-size: 12px;
+}
+.redtext{
+  color:#B22222;
+}
+.greentext{
+  color: #319431;
+}
+@media screen and (max-width: 1024px) {
+  .container {
+    width: 100%;
+  }
+  .card {
+    width: 100%;
+  }
+  .worldCard {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 650px) {
+  .card {
+    width: 100%;
+  }
+  .worldCard {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 480px) {
+  .card {
+    width: 100%;
+  }
+}

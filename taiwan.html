@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+    <head>
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-160393131-1"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-160393131-1');
+      </script>
+
+      <meta charset="utf-8">
+      <meta name="viewprt" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <meta property="og:image" content="images/武.png"/>
+      <meta name="description" content="查詢世界各國案例及台灣詳細案例，且支援日期查詢">
+      <title>武漢肺炎疫情地圖</title>
+      <link rel="canonical" href="https://letswrite.tw/google-excel-db/">
+      <link rel="stylesheet" href="assets/css/main.css" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+      <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+      <link rel="shortcut icon" href="images/武.ico" type="image/x-icon"/>
+      <link rel="icon" href="images/武.ico" type="image/x-icon"/>
+      <link rel="bookmark" href="images/武.ico" type="image/x-icon"/>
+
+    </head>
+
+    <body>
+      <!-- Header -->
+    <header id="header">
+      <div class="container">
+          <a class="titleText" href="index.html">武漢肺炎疫情地圖</a> <a class="titleLink" href="taiwan.html">台灣案例</a>
+      </a>
+    </header>
+    <!-- Main -->
+    <section id="main">
+      <div class="container">
+        <div class="note">
+          <h5>日期查詢: <input id="searchDate" type='date' min="2020-03-06" max=""/>
+          <input type="button" id="search" value="查詢" onclick="search()" style="background-color: #b9a593; color: #465665;"></input></h5>
+        </div>
+      <script>
+          $(document).ready(function(){
+            $("#search").click(function(){
+              $("#card").empty();
+              $("#div3").empty();              
+              $("#div4").empty();
+              $("#div5").empty();
+            });
+          });
+        </script>
+        <div class="note">
+          <h6><span id="div1" class="note"></span> <span id="div2" class="note"></span> 案例</h6>
+          <h6>*每天中午12點自動更新，資料來源: <a href="https://nidss.cdc.gov.tw/ch/NIDSS_DiseaseMap.aspx?dc=1&disease=19CoV&dt=5&fbclid=IwAR0XHT6hBCoHvLsMj9anvsMDGOus7VUYAqEvYBjgbJOcZ_hvfhqlgFCIwTQ" target="_blank" title="Taiwan CDC">Taiwan CDC</a></h6>
+        </div>
+          <div id="totalCard" class="card">
+            <h2>總計</h2> <h2 id="div3"></h2>
+            <p>前一日新增<span id="div4"></span>例</p>
+          </div>
+          <div id="totalCard" class="card">
+            <p>前一日新增</p>
+            <p><div id="div5"></div><div id="div6"></div></p>
+
+          </div>
+          <!--<canvas id="chart" width="600" height="600"></canvas>-->
+        <div id=card class="row js-append-card"></div>
+
+        
+      
+      <script>
+        $(function(){
+          var DateDiff = function (sDate1, sDate2) {
+            var oDate1 = new Date(sDate1);
+            var oDate2 = new Date(sDate2);
+            var iDays =
+            parseInt(Math.abs(oDate1 - oDate2)/1000/60/60/24);
+            return iDays;
+          };
+
+          var today = new Date();
+          var hours = today.getHours();
+          var GetDateDiff = DateDiff(today, "2020/3/5 12:00:00");
+          var GetDateDiff1 = DateDiff(today, "2020/3/5");
+          console.log(GetDateDiff);
+          console.log(today);
+
+          console.log(hours);
+          if(hours>=12) {
+            document.getElementById("searchDate").max = getDay(today,-1);
+          } else {
+            document.getElementById("searchDate").max = getDay(today,-2);
+          }
+          
+
+          if(GetDateDiff1 > GetDateDiff) {
+            document.getElementById('div1').innerText='前天';
+            document.getElementById('div2').innerText=getDay(today,-2);
+          } else {
+            document.getElementById('div1').innerText='昨日';
+            document.getElementById('div2').innerText=getDay(today,-1);
+          }
+
+          var prevGetDateDiff = parseInt(Math.abs(GetDateDiff)-1);
+          console.log("prev:"+prevGetDateDiff);
+          
+        
+          $.get('https://spreadsheets.google.com/feeds/list/1Mx_bRLC8g5xogEw-eXPzynAQ3Zk8K9GU0aV2Uoq4PiE/'+ prevGetDateDiff +'/public/values?alt=json', function(data) {
+              var dd = data.feed.entry;
+
+          $.get('https://spreadsheets.google.com/feeds/list/1Mx_bRLC8g5xogEw-eXPzynAQ3Zk8K9GU0aV2Uoq4PiE/'+ GetDateDiff +'/public/values?alt=json', function(data){
+            var d = data.feed.entry;
+            var items = [];
+            for (var i=0; i<23 ; i++) {
+              var item = {};
+              item.city = d[i].gsx$city.$t;
+              item.case = d[i].gsx$cases.$t;
+              item.diff = d[i].gsx$cases.$t - dd[i].gsx$cases.$t;
+              items.push(item);
+            }
+            //照案例數排序
+            function compare(p) {
+                return function(m,n){
+                  var a = m[p];
+                  var b = n[p];
+                  return b - a;
+                }
+              }
+              items.sort(compare('case'));
+            console.log(d[22].gsx$cases.$t);
+            console.log(items);
+            document.getElementById("div3").innerText=d[22].gsx$cases.$t;
+            document.getElementById("div4").innerText=d[22].gsx$cases.$t - dd[22].gsx$cases.$t;
+            for(var i=1; i<22; i++) {
+              var Card = `
+              <div class="card">
+                <div class="info">
+                  <h3>${items[i].city}</h3>
+                  <h3>${items[i].case}</h3>
+                  <p>較前一日新增${items[i].diff}例</p>
+              </div>
+            </div>`
+            ;
+            $('.js-append-card').append(Card);
+            }
+
+            
+            var addCases = [];
+            const addCase = _.groupBy(items, "diff");
+            delete addCase[0];
+            for (i in addCases) {
+              addCases.push(addCase);
+            }
+            console.log(addCases)
+            var dailycase = d[22].gsx$cases.$t-dd[22].gsx$cases.$t;
+            var key = Object.keys(addCases[0]);
+
+            if(dailycase != 0) {
+              for(var i in key) {
+                for(var j=0; j<addCases[0][key[i]].length; j++) {
+                    document.getElementById("div5").innerHTML += addCases[0][key[i]][j].city+"+"+addCases[0][key[i]][j].diff+"例<br>";
+                }
+              }
+            } else {
+              document.getElementById("div5").innerHTML = "無新增病例";
+            }
+          
+        });
+      })
+    });
+      </script>
+      </div>
+    </body>
+
+        <!---script-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+        <script src="assets/js/search.js"></script>
+        <script src="assets/js/getDay.js"></script>
+        <script src="assets/js/underscore-min.js"></script>
+        <script src="assets/js/remove.js"></script>
+
+
+
+    <!-- Footer -->
+    <section class="Footer">
+      <div class="container">
+          <div>防疫專線1922 勤洗手少出門</div>
+          <div>若有任何問題 請聯絡我謝謝</div>
+          <div>nyy28477590@gmail.com</div>
+      </div>
+    </section>
+</html>

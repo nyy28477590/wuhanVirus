@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-160393131-1"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-160393131-1');
+      </script>
+
+      <meta charset="utf-8">
+      <meta name="viewprt" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <title>nCOV 2019 in the Philippines</title>
+      <link rel="canonical" href="https://letswrite.tw/google-excel-db/">
+      <link rel="stylesheet" href="assets/css/main.css" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+      <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+      <link rel="shortcut icon" href="images/武.ico"/>
+
+    </head>
+
+    <body>
+      <div class="container">
+        <h1>Wuhan nCOV in the Philippines</h1>
+        <input id="searchDate" type='date' min="2020-03-13" max=""/>
+        <input type="button" id="search" value="search" onclick="phSearch()" style="background-color: #b9a593; color: #465665;"></input>
+        <script>
+          $(document).ready(function(){
+            $("#search").click(function(){
+              $("#card").empty();
+              $("#div3").empty();              
+              $("#div4").empty();
+              $("#div5").empty();
+            });
+          });
+        </script>
+        <div class="note">
+          <h6><span id="div1" class="note"></span> <span id="div2" class="note"></span> cases</h6>
+          <h6>*Automatically updated at noon, source: <a href="https://en.wikipedia.org/wiki/Template:2019%E2%80%9320_coronavirus_pandemic_data/Philippines_medical_cases" target="_blank" title="Department of Health (Philippines)">Department of Health (Philippines)</a></h6>
+        </div>
+          <div id="totalCard" class="card">
+            <h2>Total</h2> <h2 id="div3"></h2>
+            <p>New cases:<span id="div4"></span></p>
+          </div>
+          <div id="totalCard" class="card">
+            <p>New cases:</p>
+            <p><div id="div5"></div><div id="div6"></div></p>
+
+          </div>
+          <!--<canvas id="chart" width="600" height="600"></canvas>-->
+        <div id=card class="row js-append-card"></div>
+
+        
+      
+      <script>
+        $(function(){
+          var DateDiff = function (sDate1, sDate2) {
+            var oDate1 = new Date(sDate1);
+            var oDate2 = new Date(sDate2);
+            var iDays =
+            parseInt(Math.abs(oDate1 - oDate2)/1000/60/60/24);
+            return iDays;
+          };
+
+          var today = new Date();
+          var hours = today.getHours();
+          var GetDateDiff = DateDiff(today, "2020/3/12 12:00:00");
+          var GetDateDiff1 = DateDiff(today, "2020/3/12");
+          console.log(GetDateDiff);
+          console.log(today);
+
+          console.log(hours);
+          if(hours>12) {
+            document.getElementById("searchDate").max = getDay(today,-1);
+          } else {
+            document.getElementById("searchDate").max = getDay(today,-2);
+          }
+          
+
+          if(GetDateDiff1 > GetDateDiff) {
+            document.getElementById('div1').innerText='The day before yesterday';
+            document.getElementById('div2').innerText=getDay(today,-2);
+          } else {
+            document.getElementById('div1').innerText='Yesterday';
+            document.getElementById('div2').innerText=getDay(today,-1);
+          }
+
+          var prevGetDateDiff = parseInt(Math.abs(GetDateDiff)-1);
+          console.log(prevGetDateDiff);
+          
+        
+          $.get('https://spreadsheets.google.com/feeds/list/1JN5q1UNfnKUnAkjh08ozAsPL6Bl6pWx0fmJSbo5rBHY/'+ prevGetDateDiff +'/public/values?alt=json', function(data) {
+              var dd = data.feed.entry;
+              //var cases = gsx$confirmedadmitted.$t+gsx$confiremedreconeries.$t+gsx$confirmeddeats.$t;
+
+          $.get('https://spreadsheets.google.com/feeds/list/1JN5q1UNfnKUnAkjh08ozAsPL6Bl6pWx0fmJSbo5rBHY/'+ GetDateDiff +'/public/values?alt=json', function(data){
+            var d = data.feed.entry;
+            var items = [];
+            for (var i=0; i<d.length; i++) {
+              var item = {};
+              item.city = d[i].gsx$city.$t;
+              item.case = parseInt(d[i].gsx$confirmedadmitted.$t) + parseInt(d[i].gsx$confiremedreconeries.$t) + parseInt(d[i].gsx$confirmeddeats.$t);
+              item.diff = parseInt(d[i].gsx$confirmedadmitted.$t) + parseInt(d[i].gsx$confiremedreconeries.$t) + parseInt(d[i].gsx$confirmeddeats.$t) - (parseInt(dd[i].gsx$confirmedadmitted.$t) + parseInt(dd[i].gsx$confiremedreconeries.$t) + parseInt(dd[i].gsx$confirmeddeats.$t));
+              items.push(item);
+            }
+            //照案例數排序
+            function compare(p) {
+                return function(m,n){
+                  var a = m[p];
+                  var b = n[p];
+                  return b - a;
+                }
+              }
+              items.sort(compare('case'));
+            //console.log(d[18].gsx$cases.$t);
+            console.log(items.length);
+            document.getElementById("div3").innerText=parseInt(d[d.length-1].gsx$confirmedadmitted.$t) + parseInt(d[d.length-1].gsx$confiremedreconeries.$t) + parseInt(d[d.length-1].gsx$confirmeddeats.$t);
+            document.getElementById("div4").innerText=parseInt(d[d.length-1].gsx$confirmedadmitted.$t) + parseInt(d[d.length-1].gsx$confiremedreconeries.$t) + parseInt(d[d.length-1].gsx$confirmeddeats.$t) - (parseInt(dd[d.length-1].gsx$confirmedadmitted.$t) + parseInt(dd[d.length-1].gsx$confiremedreconeries.$t) + parseInt(dd[d.length-1].gsx$confirmeddeats.$t));
+            for(var i=1; i<items.length; i++) {
+              var Card = `
+              <div class="card">
+                <div class="info">
+                  <h4>${items[i].city}</h4>
+                  <h4>${items[i].case}</h4>
+                  <p>new cases:${items[i].diff}</p>
+              </div>
+            </div>`
+            ;
+            $('.js-append-card').append(Card);
+            }
+
+            
+            var addCases = [];
+            const addCase = _.groupBy(items, "diff");
+            delete addCase[0];
+            for (i in addCases) {
+              addCases.push(addCase);
+            }
+            
+            var dailycase = parseInt(d[d.length-1].gsx$confirmedadmitted.$t) + parseInt(d[d.length-1].gsx$confiremedreconeries.$t) + parseInt(d[d.length-1].gsx$confirmeddeats.$t) - (parseInt(dd[d.length-1].gsx$confirmedadmitted.$t) + parseInt(dd[d.length-1].gsx$confiremedreconeries.$t) + parseInt(dd[d.length-1].gsx$confirmeddeats.$t));
+            var key = Object.keys(addCases[0]);
+            console.log("key:"+key[0]);
+            /*
+            if(dailycase != 0) {
+                for(var i=1; i<=6; i++) {
+                    for(var j=1; j<=6; j++) {
+                        document.getElementById("div5").innerHTML += i + "x" + j + "=" + (i*j) + '\t';
+                    }
+                    document.getElementById("div5").innerHTML += '\n';
+                }
+            }
+            */
+
+            if(dailycase != 0) {
+              for(var i in key.pop()) {
+                for(var j=0; j<addCases[0][key[i]].length; j++) {
+                    document.getElementById("div5").innerHTML += addCases[0][key[i]][j].city+"+"+addCases[0][key[i]][j].diff+"case(s)<br>";
+                }
+              }
+            } else {
+              document.getElementById("div5").innerHTML = "無新增病例";
+            }
+          
+        });
+      })
+    });
+      </script>
+        <!---script-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+        <script src="assets/js/phSearch.js"></script>
+        <script src="assets/js/getDay.js"></script>
+        <script src="assets/js/underscore-min.js"></script>
+        <script src="assets/js/remove.js"></script>
+    </body>
+
+
+
+
+
+
+
+
+
+
+
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+    <head>
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-160393131-1"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-160393131-1');
+      </script>
+
+      <meta charset="utf-8">
+      <meta name="viewprt" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <meta property="og:image" content="images/武.png"/>
+      <meta name="description" content="查詢世界各國案例及台灣詳細案例，且支援日期查詢">
+      <title>武漢肺炎疫情地圖</title>
+      <link rel="canonical" href="https://letswrite.tw/google-excel-db/">
+      <link rel="stylesheet" href="assets/css/main.css" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+      <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+      <link rel="shortcut icon" href="images/武.ico" type="image/x-icon"/>
+      <link rel="icon" href="images/武.ico" type="image/x-icon"/>
+      <link rel="bookmark" href="images/武.ico" type="image/x-icon"/>
+
+    </head>
+
+    <body>
+    <!-- Header -->
+    <header id="header">
+        <div class="container">
+            <a class="titleText" href="index.html">武漢肺炎疫情地圖</a> <a class="titleLink" href="taiwan.html">台灣案例</a>
+        </div>
+    </header>
+    <!-- Main -->
+    <section id="main">
+    <div class="container">
+        <div class="note">
+            <h5>日期查詢: <input id="searchDate" type='date' min="2020-03-14" max=""/>
+            <input type="button" id="search" value="查詢" onclick="worldSearch()" style="background-color: #b9a593; color: #465665;"></input></h5>
+        </div>
+        <script>
+          $(document).ready(function(){
+            $("#search").click(function(){
+              $("#card").empty();
+              $("#div3").empty();              
+              $("#div4").empty();
+              $("#div5").empty();
+              $("#death").empty();
+              $("#deathdiff").empty();
+            });
+          });
+        </script>
+        <div class="note">
+          <h6><span id="div1" class="note"></span> <span id="div2" class="note"></span> 案例</h6>
+          <h6>*每天中午12點自動更新，資料來源: <a href="https://www.ecdc.europa.eu/en/geographical-distribution-2019-ncov-cases" target="_blank" title="ECDC">ECDC</a></h6>
+        </div>
+            <div class="card">
+                <div class="info">
+                <h2>總計</h2> <h2 class="greentext" id="div3"></h2>
+                <p>前一日新增<span id="div4"></span>例</p>
+                <h2>死亡</h2> <h2 class="redtext" id="death"></h2>
+                <p>前一日新增<span id="deathdiff"></span>人</p>
+                </div>
+            </div>
+            <div class="worldCard">
+                <h2>全球案例</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>國家</th>
+                            <th>案例</th>
+                            <th>死亡</th>
+                            <th>死亡率</th>
+                        </tr>
+                    </thead> 
+                    <tfoot id="div5"></tfoot>
+                </table>
+            </div>
+
+        
+      
+      <script>
+        $(function(){
+          var DateDiff = function (sDate1, sDate2) {
+            var oDate1 = new Date(sDate1);
+            var oDate2 = new Date(sDate2);
+            var iDays =
+            parseInt(Math.abs(oDate1 - oDate2)/1000/60/60/24);
+            return iDays;
+          };
+
+          var today = new Date();
+          var hours = today.getHours();
+          var GetDateDiff = DateDiff(today, "2020/3/13 12:00:00");
+          var GetDateDiff1 = DateDiff(today, "2020/3/13");
+          //console.log(GetDateDiff);
+          //console.log(today);
+
+          //console.log(hours);
+          if(hours>=12) {
+            document.getElementById("searchDate").max = getDay(today,-1);
+          } else {
+            document.getElementById("searchDate").max = getDay(today,-2);
+          }
+          
+
+          if(GetDateDiff1 > GetDateDiff) {
+            document.getElementById('div1').innerText='前天';
+            document.getElementById('div2').innerText=getDay(today,-2);
+          } else {
+            document.getElementById('div1').innerText='昨日';
+            document.getElementById('div2').innerText=getDay(today,-1);
+          }
+
+          var prevGetDateDiff = parseInt(Math.abs(GetDateDiff)-1);
+          //console.log(prevGetDateDiff);
+          
+        
+          $.get('https://spreadsheets.google.com/feeds/list/1CeBLo5LxhboETXcs4I6PGGoLGjo0wj9c9DKldWhq-fY/'+ prevGetDateDiff +'/public/values?alt=json', function(data) {
+              var dd = data.feed.entry;
+
+          $.get('https://spreadsheets.google.com/feeds/list/1CeBLo5LxhboETXcs4I6PGGoLGjo0wj9c9DKldWhq-fY/'+ GetDateDiff +'/public/values?alt=json', function(data){
+            var d = data.feed.entry;
+            //console.log(d.length);
+            var items = [];
+            for (var i=0; i<d.length; i++) {
+              var item = {};
+              item.country = d[i].gsx$country.$t;
+              item.case = d[i].gsx$cases.$t;
+              item.death = d[i].gsx$death.$t;
+              items.push(item);
+            }
+            //照案例數排序
+            function compare(p) {
+                return function(m,n){
+                  var a = m[p];
+                  var b = n[p];
+                  return b - a;
+                }
+              }
+              items.sort(compare('case'));
+            //console.log(dd[d.length-1].gsx$cases.$t);
+            document.getElementById("div3").innerText=d[d.length-1].gsx$cases.$t;
+            document.getElementById("div4").innerText=d[d.length-1].gsx$cases.$t - dd[dd.length-1].gsx$cases.$t;
+            document.getElementById("death").innerHTML=d[d.length-1].gsx$death.$t;
+            document.getElementById("deathdiff").innerHTML=d[d.length-1].gsx$death.$t - dd[dd.length-1].gsx$death.$t;
+            for(var i=1; i<items.length; i++) {
+                document.getElementById("div5").innerHTML += "<tr><td>"+i+"</td> <td>"+items[i].country+"</td> <td>"+items[i].case+"</td><td>"+items[i].death+"</td><td>"+percentNum(items[i].death,items[i].case)+"</td></tr>";
+            }
+
+            /*
+            var addCases = [];
+            const addCase = _.groupBy(items, "diff");
+            delete addCase[0];
+            for (i in addCases) {
+              addCases.push(addCase);
+            }
+            console.log(addCases)
+            //var dailycase = d[22].gsx$cases.$t-dd[22].gsx$cases.$t;
+            */
+
+            /*
+            if(dailycase != 0) {
+              for(var i=1; i<dailycase+1; i++) {
+              for(var j=0; j<addCases[0][i].length; j++) {
+                document.getElementById("div5").innerHTML += addCases[0][i][j].city+addCases[0][i][j].diff+"例<br>";
+                }
+              } 
+            } else {
+              document.getElementById("div5").innerHTML = "無新增病例";
+            }
+            */
+          
+        });
+      })
+    });
+
+    
+      </script>
+      </div>
+    </section>
+
+    </body>
+        <!---script-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+        <script src="assets/js/search.js"></script>
+        <script src="assets/js/getDay.js"></script>
+        <script src="assets/js/underscore-min.js"></script>
+        <script src="assets/js/remove.js"></script>
+        <script src="assets/js/percentNum.js"></script>
+        <script src="assets/js/worldSearch.js"></script>
+
+    <!-- Footer -->
+    <section class="Footer">
+        <div class="container">
+            <div>防疫專線1922 勤洗手少出門</div>
+            <div>若有任何問題 請聯絡我謝謝</div>
+            <div>nyy28477590@gmail.com</div>
+        </div>
+    </section>
+</html>
